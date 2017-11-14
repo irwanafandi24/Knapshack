@@ -19,10 +19,8 @@ public class FraktionalKnapshack {
      * @param args the command line arguments
      */
     
-     private static double getOptimalValueByDensity(int capacity,
-                                          int[] values,
-                                          int[] weights) {
-        double value = 0;
+     private static double getOptimalValueByDensity(int capacity, int[] values,int[] weights) {
+        double kapasitas = 0;
         // build val-per-unit for each item
         Item[] items = new Item[values.length];
         for (int i = 0; i < items.length; i++) {
@@ -41,72 +39,113 @@ public class FraktionalKnapshack {
         while(i < items.length && capacity > 0) {
             // if item fits into knapsack, take all of it;
             // o.w. take so much as to fill the knapsack
-            int fraction = Math.min(items[i].weight, capacity);
-            value += items[i].val_per_unit * fraction;
+            double fraction = Math.min(items[i].weight, capacity);
+            kapasitas += items[i].val_per_unit * fraction;
             capacity -= fraction;
             i++;
         }
-        return value;
+        return kapasitas;
     }
-     
-     private static double getOptimalValueByValue(int capacity,
-                                          int[] values,
-                                          int[] weights) {
-        double value = 0;
-        Arrays.sort(values);
-        // build val-per-unit for each item
-        Item[] items = new Item[values.length];
-        for (int i = 0; i < items.length; i++) {
-            items[i] = new Item(values[i], weights[i]);
-        }
-        
-        int i = 0;
-        // either no items left or no room left
-        while(i < items.length && capacity > 0) {
-            // if item fits into knapsack, take all of it;
-            // o.w. take so much as to fill the knapsack
-            int fraction = Math.min(items[i].weight, capacity);
-            if (fraction==items[i].weight){
-                value += items[i].value;
-                capacity -= fraction;
-                i++;
-            }else{
-            value += items[i].value*(capacity/items[i].weight);
-            capacity -= fraction;
-            i++;
-            }
-        }
-        return value;
-    }
-     
-     private static double getOptimalValueByWeight(int capacity,
-                                          int[] values,
-                                          int[] weights) {
-        double value = 0;
+    
+private static double getOptimalValueByProfit(int capacity, int[] values,int[] weights) {
+        double provit = 0;
         // build val-per-unit for each item
         Item[] items = new Item[values.length];
         for (int i = 0; i < items.length; i++) {
             items[i] = new Item(values[i], weights[i]);
         }
         // sort items by vi/wi
-        
-        
+        Arrays.sort(items, new Comparator<Item>(){
+            @Override
+            public int compare (Item i1, Item i2) {
+                return i1.value > i2.value ? -1 : 1;
+            }
+        });
+//        Item t;
+//        for (int z=0; z<items.length;z++){
+//            for (int y=0;y<items.length-1;y++){
+//                if(items[y].value<items[y+1].value){
+//                    t=items[y+1];
+//                    items[y+1] = items[y];
+//                    items[y] =t;
+//                }
+//            }
+//        } 
+//        
         int i = 0;
         // either no items left or no room left
         while(i < items.length && capacity > 0) {
             // if item fits into knapsack, take all of it;
             // o.w. take so much as to fill the knapsack
-            int fraction = Math.min(items[i].weight, capacity);
-            value += items[i].weight * fraction;
-            capacity -= fraction;
-            i++;
+//            fraction= Math.min(items[i].weight, capacity);
+//            provit += items[i].value * fraction;
+//            capacity -= fraction;
+//            i++;
+                if(items[i].weight<capacity && capacity>0){
+                    provit += items[i].value;
+                    capacity -= items[i].weight;
+                }else if (items[i].weight>capacity && capacity>0){
+                    provit += (capacity/items[i].weight)*items[i].value;
+                    capacity =0;
+                }else{
+                    break;
+                }
+                i++;
         }
-        return value;
+        return provit;
     }
-    
+
+private static double getOptimalValueByWeight(int capacity, int[] values,int[] weights) {
+        double nWeight = 0;
+        // build val-per-unit for each item
+        Item[] items = new Item[values.length];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = new Item(values[i], weights[i]);
+        }
+        // sort items by vi/wi
+        Arrays.sort(items, new Comparator<Item>(){
+            @Override
+            public int compare (Item i1, Item i2) {
+                return i1.weight < i2.weight ? -1 : 1;
+            }
+        });
+//        Item t;
+//        for (int z=0; z<items.length;z++){
+//            for (int y=0;y<items.length-1;y++){
+//                if(items[y].value<items[y+1].value){
+//                    t=items[y+1];
+//                    items[y+1] = items[y];
+//                    items[y] =t;
+//                }
+//            }
+//        } 
+//        
+        int i = 0;
+        // either no items left or no room left
+        while(i < items.length && capacity > 0) {
+            // if item fits into knapsack, take all of it;
+            // o.w. take so much as to fill the knapsack
+//            fraction= Math.min(items[i].weight, capacity);
+//            provit += items[i].value * fraction;
+//            capacity -= fraction;
+//            i++;
+                if(items[i].weight<capacity && capacity>0){
+                    nWeight += items[i].value;
+                    capacity -= items[i].weight;
+                }else if (items[i].weight>capacity && capacity>0){
+                    nWeight += (capacity/items[i].weight)*items[i].value;
+                    capacity =0;
+                }else{
+                    break;
+                }
+                i++;
+        }
+        return nWeight;
+    }
+     
     private static class Item{
-        int weight;
-        int value;
+        double weight;
+        double value;
         double val_per_unit; // density item
         public Item (int val, int wgt) {
             this.weight = wgt;
@@ -125,17 +164,14 @@ public class FraktionalKnapshack {
              */
         }
 
-        public int getWeight() {
+        public double getWeight() {
             return weight;
         }
 
-        public int getValue() {
+        public double getValue() {
             return value;
-        }
-
-        
-       
-        }
+        }    
+     }
     
     public static void main(String[] args) {
         
@@ -154,10 +190,12 @@ public class FraktionalKnapshack {
             weights[i] = scanner.nextInt();
         }
         
-
-        System.out.println(getOptimalValueByDensity(capacity, values, weights));
-        System.out.println(getOptimalValueByValue(capacity, values, weights));
-        System.out.println(getOptimalValueByWeight(capacity, values, weights));
+        double densityValue = getOptimalValueByDensity(capacity, values, weights);
+        System.out.println("Density: "+densityValue);
+        double proviteValue = getOptimalValueByProfit(capacity, values, weights);
+        System.out.println("Prifit : "+proviteValue);
+        double weightValue = getOptimalValueByWeight(capacity, values, weights);
+        System.out.println("Weight : "+weightValue);
         scanner.close();
     }
     
