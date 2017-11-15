@@ -19,15 +19,15 @@ public class FraktionalKnapshack {
      * @param args the command line arguments
      */
     
-     private static double getOptimalValueByDensity(int capacity, int[] values,int[] weights) {
-        double kapasitas = 0;
+     private static double getOptimalValueByDensity(int capacity, int[] values,int[] weights) { //knapsack by density (keberhargaan)
+        double kapasitas = 0; //menginisiasi kapasitas knapsack
         // build val-per-unit for each item
-        Item[] items = new Item[values.length];
-        for (int i = 0; i < items.length; i++) {
+        Item[] items = new Item[values.length]; //menginisiasi array sejumlah kapasitas
+        for (int i = 0; i < items.length; i++) { //perulangan untuk menginisiasi setiap item dgn value dan beratnya
             items[i] = new Item(values[i], weights[i]);
         }
         // sort items by vi/wi
-        Arrays.sort(items, new Comparator<Item>(){
+        Arrays.sort(items, new Comparator<Item>(){ //fungsi untuk mengurutkan setiap item dalam array (berdasarkan keberhargaan/value per unit)
             @Override
             public int compare (Item i1, Item i2) {
                 return i1.val_per_unit > i2.val_per_unit ? -1 : 1;
@@ -39,23 +39,23 @@ public class FraktionalKnapshack {
         while(i < items.length && capacity > 0) {
             // if item fits into knapsack, take all of it;
             // o.w. take so much as to fill the knapsack
-            double fraction = Math.min(items[i].weight, capacity);
-            kapasitas += items[i].val_per_unit * fraction;
-            capacity -= fraction;
+            double fraction = Math.min(items[i].weight, capacity); //mengembalikan nilai minimal antara berat item dan kapasitas knapsack
+            kapasitas += items[i].val_per_unit * fraction; //menambah nilai kapasitas dengan hasil kali nilai keberhargaan item dengan fraction
+            capacity -= fraction; //mengurangi nilai capacity dengan nilai fraction
             i++;
         }
         return kapasitas;
     }
     
-private static double getOptimalValueByProfit(int capacity, int[] values,int[] weights) {
-        double provit = 0;
+private static double getOptimalValueByProfit(int capacity, int[] values,int[] weights) { //knapsack by profit
+        double provit = 0; //menginisiasi nilai profit
         // build val-per-unit for each item
         Item[] items = new Item[values.length];
         for (int i = 0; i < items.length; i++) {
             items[i] = new Item(values[i], weights[i]);
         }
         // sort items by vi/wi
-        Arrays.sort(items, new Comparator<Item>(){
+        Arrays.sort(items, new Comparator<Item>(){ //fungsi untuk mengurutkan setiap item dalam array (berdasarkan nilai)
             @Override
             public int compare (Item i1, Item i2) {
                 return i1.value > i2.value ? -1 : 1;
@@ -74,19 +74,19 @@ private static double getOptimalValueByProfit(int capacity, int[] values,int[] w
 //        
         int i = 0;
         // either no items left or no room left
-        while(i < items.length && capacity > 0) {
+        while(i < items.length && capacity > 0) { //perulangan untuk memeriksa setiap item di list
             // if item fits into knapsack, take all of it;
             // o.w. take so much as to fill the knapsack
 //            fraction= Math.min(items[i].weight, capacity);
 //            provit += items[i].value * fraction;
 //            capacity -= fraction;
 //            i++;
-                if(items[i].weight<capacity && capacity>0){
-                    provit += items[i].value;
-                    capacity -= items[i].weight;
-                }else if (items[i].weight>capacity && capacity>0){
-                    provit += (capacity/items[i].weight)*items[i].value;
-                    capacity =0;
+                if(items[i].weight<capacity && capacity>0){ //kondisi knapsack masih memiliki kapasitas yg mencukupi item ke[i]
+                    provit += items[i].value; //tambah profit dengan value item ke[i]
+                    capacity -= items[i].weight; //kurangi nilai capacity dengan berat item ke[i]
+                }else if (items[i].weight>capacity && capacity>0){ //kondisi berat item ke[i] melibihi kapasitas
+                    provit += (capacity/items[i].weight)*items[i].value; //tambah nilai profit sebesar kapasitas/berat item dikali value item ke[i]
+                    capacity =0; //set kapasitas menjadi 0 (penuh)
                 }else{
                     break;
                 }
@@ -95,7 +95,7 @@ private static double getOptimalValueByProfit(int capacity, int[] values,int[] w
         return provit;
     }
 
-private static double getOptimalValueByWeight(int capacity, int[] values,int[] weights) {
+private static double getOptimalValueByWeight(int capacity, int[] values,int[] weights) { //knapsack by weight
         double nWeight = 0;
         // build val-per-unit for each item
         Item[] items = new Item[values.length];
@@ -103,7 +103,7 @@ private static double getOptimalValueByWeight(int capacity, int[] values,int[] w
             items[i] = new Item(values[i], weights[i]);
         }
         // sort items by vi/wi
-        Arrays.sort(items, new Comparator<Item>(){
+        Arrays.sort(items, new Comparator<Item>(){ //fungsi untuk mengurutkan setiap item dalam array
             @Override
             public int compare (Item i1, Item i2) {
                 return i1.weight < i2.weight ? -1 : 1;
@@ -122,19 +122,19 @@ private static double getOptimalValueByWeight(int capacity, int[] values,int[] w
 //        
         int i = 0;
         // either no items left or no room left
-        while(i < items.length && capacity > 0) {
+        while(i < items.length && capacity > 0) { //perulangan untuk memeriksa setiap item di list
             // if item fits into knapsack, take all of it;
             // o.w. take so much as to fill the knapsack
 //            fraction= Math.min(items[i].weight, capacity);
 //            provit += items[i].value * fraction;
 //            capacity -= fraction;
 //            i++;
-                if(items[i].weight<capacity && capacity>0){
-                    nWeight += items[i].value;
-                    capacity -= items[i].weight;
-                }else if (items[i].weight>capacity && capacity>0){
-                    nWeight += (capacity/items[i].weight)*items[i].value;
-                    capacity =0;
+                if(items[i].weight<capacity && capacity>0){ //kondisi knapsack masih memiliki kapasitas yg mencukupi item ke[i]
+                    nWeight += items[i].value; //tambahkan nilai nWeight dengan nilai profit item ke[i]
+                    capacity -= items[i].weight; //kurangkan nilai capacity dengan berat item ke[i]
+                }else if (items[i].weight>capacity && capacity>0){ //kondisi berat item ke[i] melibihi kapasitas
+                    nWeight += (capacity/items[i].weight)*items[i].value; //tambah nilai nWeight sebesar kapasitas/berat item dikali value item ke[i]
+                    capacity =0; //set kapasitas menjadi 0 (penuh)
                 }else{
                     break;
                 }
@@ -176,17 +176,17 @@ private static double getOptimalValueByWeight(int capacity, int[] values,int[] w
     public static void main(String[] args) {
         
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Input jumlah item = ");
+        System.out.println("Input jumlah item = "); //memasukkan jumlah item
         int n = scanner.nextInt();
-        System.out.println("Input kapasitas knapsack = ");
+        System.out.println("Input kapasitas knapsack = "); //memasukkan kapasitas berat knapsack
         int capacity = scanner.nextInt();
         int[] values = new int[n];
         int[] weights = new int[n];
         for (int i = 0; i < n; i++) {
-            System.out.println("Input item ke-"+(i+1));
-            System.out.print("Values: ");
+            System.out.println("Input item ke-"+(i+1)); //menginput masing-masing item
+            System.out.print("Values: ");//menginput value item ke[i]
             values[i] = scanner.nextInt();
-            System.out.print("Weight: ");
+            System.out.print("Weight: ");//menginput berat item ke[i]
             weights[i] = scanner.nextInt();
         }
         
